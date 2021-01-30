@@ -4,9 +4,6 @@ const express = require('express');
 const app = express()
 
 const authRoutes = require('./routes/authRoutes.js')
-const { auth } = require('./middleware/smoothies.js')
-
-app.listen(process.env.PORT)
 
 app.use(express.static('public'))
 app.use(express.json())
@@ -27,10 +24,22 @@ firebase.initializeApp(firebaseConfig);
 
 app.get('/', (req, res) => {
     res.render('home')
+    return
 })
-app.get('/smoothies', auth, (req, res) => {
-    res.render('smoothies')
+app.get('/smoothies', (req, res) => {
+    const user = firebase.auth().currentUser;
+    if (user.emailVerified) {
+        res.render('smoothies')
+    } else {
+        user.sendEmailVerification()
+            .then(() => {
+                console.log('EMAIL SENT')
+            }).catch(err => console.log(err.message))
+        res.redirect('/login')
+    }
 })
 
 // Routes
 app.use(authRoutes)
+
+app.listen(process.env.PORT)

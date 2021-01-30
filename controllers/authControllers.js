@@ -24,12 +24,14 @@ module.exports.signup_post = (req, res) => {
                 redirect: credentials,
                 status: 'success'
             })
+            return
         })
         .catch(err => {
             res.status(400).json({
                 error: err.message,
                 status: 'error'
             })
+            return
         })
 }
 
